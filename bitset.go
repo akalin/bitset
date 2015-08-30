@@ -163,13 +163,11 @@ func (b *BitSet) NextSet(i uint) (uint, bool) {
 	if w != 0 {
 		return i + trailingZeroes64(w), true
 	}
-	x = x + 1
-	for x < len(b.set) {
-		if b.set[x] != 0 {
-			return uint(x)*wordSize + trailingZeroes64(b.set[x]), true
+	for x++; x < len(b.set); x++ {
+		w := b.set[x]
+		if w != 0 {
+			return uint(x)*wordSize + trailingZeroes64(w), true
 		}
-		x = x + 1
-
 	}
 	return 0, false
 }
