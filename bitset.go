@@ -260,11 +260,32 @@ func trailingZeroes64(v uint64) uint {
 }
 
 // lg64 assumes that v > 0.
-// TODO: Use a faster method.
+// TODO: Use an even faster method.
 func lg64(v uint64) uint {
 	var r uint
-	for ; (v >> 1) != 0; v >>= 1 {
-		r++
+	if v >= (1 << 32) {
+		r += 32
+		v >>= 32
+	}
+	if v >= (1 << 16) {
+		r += 16
+		v >>= 16
+	}
+	if v >= (1 << 8) {
+		r += 8
+		v >>= 8
+	}
+	if v >= (1 << 4) {
+		r += 4
+		v >>= 4
+	}
+	if v >= (1 << 2) {
+		r += 2
+		v >>= 2
+	}
+	if v >= (1 << 1) {
+		r += 1
+		v >>= 1
 	}
 	return r
 }
