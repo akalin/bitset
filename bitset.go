@@ -293,7 +293,8 @@ func (b *BitSet) DifferenceCardinality(compare *BitSet) uint {
 	return uint(cnt)
 }
 
-// InPlaceDifference computes the difference of base set and other set
+// InPlaceDifference destructively computes the difference of base set
+// and other set
 // This is the BitSet equivalent of &^ (and not)
 func (b *BitSet) InPlaceDifference(compare *BitSet) {
 	panicIfNull(b)
