@@ -149,6 +149,33 @@ func (b *BitSet) Flip(i uint) *BitSet {
 	return b
 }
 
+// PrevSet returns the prev bit set from the specified index,
+// including possibly the current index
+// along with an error code (true = valid, false = no set bit found)
+// for iPlusOne,e := v.PrevSet(v.Len()); e; i,e = v.PrevSet(iPlusOne) {...}
+func (b *BitSet) PrevSet(iPlusOne uint) (uint, bool) {
+	if iPlusOne == 0 {
+		return 0, false
+	}
+	i := iPlusOne - 1
+	x := int(i >> log2WordSize)
+	if x >= len(b.set) {
+		x = len(b.set) - 1
+	}
+	w := b.set[x]
+	w &= (1 << (i & (wordSize - 1))) - 1
+	if w != 0 {
+		return uint(x)*wordSize + lg64(w) + 1, true
+	}
+	for xPlusOne := x; xPlusOne > 0; xPlusOne-- {
+		w := b.set[xPlusOne-1]
+		if w != 0 {
+			return uint(xPlusOne-1)*wordSize + lg64(w) + 1, true
+		}
+	}
+	return 0, false
+}
+
 // NextSet returns the next bit set from the specified index,
 // including possibly the current index
 // along with an error code (true = valid, false = no set bit found)
@@ -230,6 +257,16 @@ var deBruijn = [...]byte{
 
 func trailingZeroes64(v uint64) uint {
 	return uint(deBruijn[((v&-v)*0x03f79d71b4ca8b09)>>58])
+}
+
+// lg64 assumes that v > 0.
+// TODO: Use a faster method.
+func lg64(v uint64) uint {
+	var r uint
+	for ; (v >> 1) != 0; v >>= 1 {
+		r++
+	}
+	return r
 }
 
 // Equal tests the equvalence of two BitSets.

@@ -97,7 +97,7 @@ func TestBitSetAndGet(t *testing.T) {
 	}
 }
 
-func TestIterate(t *testing.T) {
+func TestForwardIterate(t *testing.T) {
 	v := New(10000)
 	v.Set(0)
 	v.Set(1)
@@ -138,6 +138,52 @@ func TestIterate(t *testing.T) {
 		t.Errorf("bug 3")
 	}
 	if data[4] != 2000 {
+		t.Errorf("bug 4")
+	}
+
+}
+
+func TestBackwardsIterate(t *testing.T) {
+	v := New(10000)
+	v.Set(0)
+	v.Set(1)
+	v.Set(2)
+	data := make([]uint, 3)
+	c := 0
+	for iPlusOne, e := v.PrevSet(v.Len()); e; iPlusOne, e = v.PrevSet(iPlusOne) {
+		data[c] = iPlusOne - 1
+		c++
+	}
+	if data[0] != 2 {
+		t.Errorf("bug 0")
+	}
+	if data[1] != 1 {
+		t.Errorf("bug 1")
+	}
+	if data[2] != 0 {
+		t.Errorf("bug 2")
+	}
+	v.Set(10)
+	v.Set(2000)
+	data = make([]uint, 5)
+	c = 0
+	for iPlusOne, e := v.PrevSet(v.Len()); e; iPlusOne, e = v.PrevSet(iPlusOne) {
+		data[c] = iPlusOne - 1
+		c++
+	}
+	if data[0] != 2000 {
+		t.Errorf("bug 0")
+	}
+	if data[1] != 10 {
+		t.Errorf("bug 1")
+	}
+	if data[2] != 2 {
+		t.Errorf("bug 2")
+	}
+	if data[3] != 1 {
+		t.Errorf("bug 3")
+	}
+	if data[4] != 0 {
 		t.Errorf("bug 4")
 	}
 
@@ -802,8 +848,8 @@ func BenchmarkCount(b *testing.B) {
 	}
 }
 
-// go test -bench=Iterate
-func BenchmarkIterate(b *testing.B) {
+// go test -bench=ForwardIterate
+func BenchmarkForwardIterate(b *testing.B) {
 	b.StopTimer()
 	s := New(10000)
 	for i := 0; i < 10000; i += 3 {
@@ -818,8 +864,8 @@ func BenchmarkIterate(b *testing.B) {
 	}
 }
 
-// go test -bench=SparseIterate
-func BenchmarkSparseIterate(b *testing.B) {
+// go test -bench=SparseForwardIterate
+func BenchmarkSparseForwardIterate(b *testing.B) {
 	b.StopTimer()
 	s := New(100000)
 	for i := 0; i < 100000; i += 30 {
@@ -829,6 +875,38 @@ func BenchmarkSparseIterate(b *testing.B) {
 	for j := 0; j < b.N; j++ {
 		c := uint(0)
 		for i, e := s.NextSet(0); e; i, e = s.NextSet(i + 1) {
+			c++
+		}
+	}
+}
+
+// go test -bench=BackwardsIterate
+func BenchmarkBackwardsIterate(b *testing.B) {
+	b.StopTimer()
+	s := New(10000)
+	for i := 0; i < 10000; i += 3 {
+		s.Set(uint(i))
+	}
+	b.StartTimer()
+	for j := 0; j < b.N; j++ {
+		c := uint(0)
+		for iPlusOne, e := s.PrevSet(s.Len()); e; iPlusOne, e = s.PrevSet(iPlusOne) {
+			c++
+		}
+	}
+}
+
+// go test -bench=SparseBackwardsIterate
+func BenchmarkSparseBackwardsIterate(b *testing.B) {
+	b.StopTimer()
+	s := New(100000)
+	for i := 0; i < 100000; i += 30 {
+		s.Set(uint(i))
+	}
+	b.StartTimer()
+	for j := 0; j < b.N; j++ {
+		c := uint(0)
+		for iPlusOne, e := s.PrevSet(s.Len()); e; iPlusOne, e = s.PrevSet(iPlusOne) {
 			c++
 		}
 	}
