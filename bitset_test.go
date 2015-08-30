@@ -358,6 +358,16 @@ func TestPanicComplementBNil(t *testing.T) {
 	b.Complement()
 }
 
+func TestPanicInPlaceComplementBNil(t *testing.T) {
+	var b *BitSet = nil
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("Nil should should have caused a panic")
+		}
+	}()
+	b.InPlaceComplement()
+}
+
 func TestPanicAnytBNil(t *testing.T) {
 	var b *BitSet = nil
 	defer func() {
@@ -634,6 +644,22 @@ func TestComplement(t *testing.T) {
 	b = a.Complement()
 	if b.Count() != 47 {
 		t.Errorf("Complement failed, size should be 47, but was %d", b.Count())
+	}
+}
+
+func TestInPlaceComplement(t *testing.T) {
+	a := New(50)
+	b := a.Clone()
+	b.InPlaceComplement()
+	if b.Count() != 50 {
+		t.Errorf("InPlaceComplement failed, size should be 50, but was %d", b.Count())
+	}
+	a = New(50)
+	a.Set(10).Set(20).Set(42)
+	b = a.Clone()
+	b.InPlaceComplement()
+	if b.Count() != 47 {
+		t.Errorf("InPlaceComplement failed, size should be 47, but was %d", b.Count())
 	}
 }
 

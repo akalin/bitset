@@ -484,6 +484,16 @@ func (b *BitSet) Complement() (result *BitSet) {
 	return
 }
 
+// Complement destructively computes the (local) complement of a biset
+// (up to length bits)
+func (b *BitSet) InPlaceComplement() {
+	panicIfNull(b)
+	for i, word := range b.set {
+		b.set[i] = ^word
+	}
+	b.cleanLastWord()
+}
+
 // All returns true if all bits are set, false otherwise
 func (b *BitSet) All() bool {
 	panicIfNull(b)
